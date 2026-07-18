@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>pk clicker :)</title>
+        <style>
+            body {
+                background-color: bisque;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                overflow: hidden;
+            }
+            .pk-img {
+                border-radius: 50%;
+                width: 100px;
+                height: auto;
+
+                transition: all 0.1s ease-in-out;
+            }
+            .pk-btn {
+                border: none;
+                background-color: bisque;
+                border-radius: 50%;
+            }
+            .upgrade-bar {
+                border-width: 10px;
+                border-color: black;
+                border: solid;
+                background-color: blanchedalmond;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 10%;
+
+                display: flex;
+                flex-direction: row;
+                gap: 1%;
+                align-items: center;
+                justify-content: center;
+            }
+            .upgrade-btn {
+                border:solid;
+                border-radius: 10px;
+                border-width: 1px;
+                border-color: black;
+                background-color: coral;
+                height: 90%;
+                width: 100px;
+
+                transition: all 0.1s ease-in-out;
+            }
+            .dg {
+                position: absolute;
+                background-image: url("dg.jpg");
+                background-size: cover;
+                width: 10%;
+                height: 10%;
+                z-index: -1;
+            }
+            .who {
+                position: absolute;
+                background-image: url("who.jpg");
+                background-size: cover;
+                width: 20%;
+                height: 20%;
+                z-index: -1;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class = "maintext">0</h1>
+        <button class = "pk-btn">
+            <img src = "pk.jpg" class="pk-img">
+        </button>
+        <div class = "upgrade-bar"></div>
+    </body>
+    <script>
+        const maintext = document.querySelector(".maintext");
+
+        const mainbtn = document.querySelector(".pk-btn");
+        const mainimg = document.querySelector(".pk-img");
+        const upbar = document.querySelector(".upgrade-bar");
+
+        const upgrades = ["digital footprint","who is ts"];
+
+        const savedscore = localStorage.getItem("clicks")
+        const savedprice = localStorage.getItem("upgrads")
+        const savedamnt = localStorage.getItem("amnt")
+        let price = [];
+        let amount = [];
+        let score = 0;
+        let cps=0;
+        if(savedscore !== null) {
+            score = Number(savedscore);
+            maintext.textContent = score
+        }
+
+        if(savedprice !== null) {
+            price = JSON.parse(savedprice);
+        }
+        if(price.length===0) {
+            price = [10,50]
+        }
+
+        function spawn(type) {
+            let dgimg = document.createElement("div");
+            dgimg.classList.add(type);
+
+            document.body.appendChild(dgimg);
+            let randomx = Math.random() * window.innerWidth
+            let randomy = Math.random() * window.innerHeight
+            dgimg.style.left = randomx + "px";
+            dgimg.style.top = randomy + "px"
+        }
+
+        if(savedamnt !== null) {
+            amount = JSON.parse(savedamnt);
+        }
+        if(amount.length===0) {
+            amount = [1,0]
+        }
+        for(let i = 0; i < amount[0]-1; i++) {
+            spawn("dg");
+        }
+        for(let i = 0; i < amount[1]; i++) {
+            spawn("who");
+        }
+
+        for(let i = 0; i < upgrades.length; i++) {
+            let btn = document.createElement("button");
+            btn.classList.add("upgrade-btn");
+            btn.textContent = upgrades[i] + " - " + price[i];
+            btn.addEventListener("mouseenter",function() {
+                btn.style.backgroundColor = "yellow";
+            })
+            btn.addEventListener("mouseleave",function() {
+                btn.style.backgroundColor = "coral";
+            })
+            btn.addEventListener("click",function() {
+                if((score - price[i]) < 0) {
+                    btn.textContent = "brokie";
+                    setTimeout(function() {
+                        btn.textContent = upgrades[i] + " - " + price[i];
+                    },1000)
+                    return;
+                }
+                score -= price[i];
+                price[i] += 10;
+                if(i===0) {
+                    spawn("dg");
+                }
+                if(i===1) {
+                    spawn("who");
+                }
+                amount[i]++;
+                
+                btn.textContent = upgrades[i] + " - " + price[i];
+                maintext.textContent = score
+            })
+
+            upbar.appendChild(btn);
+        }
+
+        mainbtn.addEventListener("mouseenter", function() {
+            mainimg.style.width = "110px";
+        })
+        mainbtn.addEventListener("mouseleave", function() {
+            mainimg.style.width = "100px";
+        })
+        mainbtn.addEventListener("click",function() {
+            mainimg.style.width = "90px";
+            setTimeout(function() {
+                mainimg.style.width = "110px";
+            },100)
+            score+=amount[0];
+            maintext.textContent = score
+            if(score === 67) {
+                maintext.textContent = "BOIIIII IT'S 6777777777"
+            }
+            if(score === 36) {
+                maintext.textContent = "36 thanh hoa"
+            }
+        })
+
+        setInterval(function() {
+            score += amount[1];
+            maintext.textContent = score
+        },1000)
+
+        document.addEventListener("visibilitychange", function() {
+            if(document.visibilityState === "hidden") {
+                localStorage.setItem("clicks",score);
+                localStorage.setItem("upgrads",JSON.stringify(price))
+                localStorage.setItem("amnt",JSON.stringify(amount))
+            }
+        })
+    </script>
+</html>
