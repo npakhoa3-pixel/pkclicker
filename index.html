@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>pk clicker :)</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>footprint clicker :)</title>
         <style>
             body {
                 background-color: bisque;
@@ -35,7 +36,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 10%;
+                height: 50px;
 
                 display: flex;
                 flex-direction: row;
@@ -58,17 +59,37 @@
                 position: absolute;
                 background-image: url("dg.jpg");
                 background-size: cover;
-                width: 10%;
-                height: 10%;
+                width: 75px;
+                height: 50px;
                 z-index: -1;
             }
             .who {
                 position: absolute;
                 background-image: url("who.jpg");
                 background-size: cover;
-                width: 20%;
-                height: 20%;
+                width: 125px;
+                height: 75px;
                 z-index: -1;
+            }
+            .fp {
+                position: absolute;
+                background-image: url("fp.jpg");
+                background-size: cover;
+                width: 100px;
+                height: 100px;
+                z-index: 1;
+
+                transition: all 0.2s ;
+            }
+            .gay {
+                position: absolute;
+                opacity: 0.5;
+                object-fit: contain;
+                background-image: url("gay.jpg");
+                background-size: cover;
+                width: 100%;
+                height: 100%;
+                z-index: -2; 
             }
         </style>
     </head>
@@ -86,7 +107,11 @@
         const mainimg = document.querySelector(".pk-img");
         const upbar = document.querySelector(".upgrade-bar");
 
-        const upgrades = ["digital footprint","who is ts"];
+        const upgrades = ["digital footprint","who is ts","fat penguin","gay"];
+        const pfp = ["pk.jpg","qu.jpg","tru.jpg","fp-img.jpg",]
+        let multi = 1;
+        const defprice = [10,50,1000,5000];
+        const defamount = [1,0,0,0];
 
         const savedscore = localStorage.getItem("clicks")
         const savedprice = localStorage.getItem("upgrads")
@@ -104,7 +129,7 @@
             price = JSON.parse(savedprice);
         }
         if(price.length===0) {
-            price = [10,50]
+            price = defprice
         }
 
         function spawn(type) {
@@ -116,13 +141,37 @@
             let randomy = Math.random() * window.innerHeight
             dgimg.style.left = randomx + "px";
             dgimg.style.top = randomy + "px"
+            if(type === "fp") {
+                dgimg.addEventListener("click", function() {
+                    score += 100 * multi;
+                    maintext.textContent = score;
+                })
+                setInterval(function() {
+                    let randomx = Math.random() * window.innerWidth
+                    let randomy = Math.random() * window.innerHeight
+                    dgimg.style.left = randomx + "px";
+                    dgimg.style.top = randomy + "px"
+                },500)
+            }
+            if(type === "gay") {
+                dgimg.style.left = 0;
+                dgimg.style.top = 0;
+            }
         }
 
         if(savedamnt !== null) {
             amount = JSON.parse(savedamnt);
         }
         if(amount.length===0) {
-            amount = [1,0]
+            amount = defamount
+        }
+        for(let i = 0; i < upgrades.length; i++) {
+            if(price[i] === undefined) {
+                price[i] = defprice[i];
+            }
+            if(amount[i] === undefined) {
+                amount[i] = defamount[i];
+            }
         }
         for(let i = 0; i < amount[0]-1; i++) {
             spawn("dg");
@@ -130,16 +179,31 @@
         for(let i = 0; i < amount[1]; i++) {
             spawn("who");
         }
+        for(let i = 0; i < amount[2]; i++) {
+            spawn("fp");
+        }
+        if(amount[3]===1) {
+            multi += 0.25
+            spawn("gay");
+        }
 
         for(let i = 0; i < upgrades.length; i++) {
             let btn = document.createElement("button");
             btn.classList.add("upgrade-btn");
+            if(i===3) {
+                if(amount[3]===1) continue;
+                btn.style.backgroundColor = "blue";
+            }
             btn.textContent = upgrades[i] + " - " + price[i];
             btn.addEventListener("mouseenter",function() {
                 btn.style.backgroundColor = "yellow";
             })
             btn.addEventListener("mouseleave",function() {
-                btn.style.backgroundColor = "coral";
+                if(i===3) {
+                    btn.style.backgroundColor = "blue"
+                } else {
+                    btn.style.backgroundColor = "coral";
+                }
             })
             btn.addEventListener("click",function() {
                 if((score - price[i]) < 0) {
@@ -150,12 +214,22 @@
                     return;
                 }
                 score -= price[i];
-                price[i] += 10;
                 if(i===0) {
+                    price[i] += 10;
                     spawn("dg");
                 }
                 if(i===1) {
+                    price[i] += 20;
                     spawn("who");
+                }
+                if(i===2) {
+                    price[i] += 500;
+                    spawn("fp");
+                }
+                if(i===3) {
+                    multi += 0.25
+                    spawn("gay");
+                    btn.remove();
                 }
                 amount[i]++;
                 
@@ -173,12 +247,22 @@
             mainimg.style.width = "100px";
         })
         mainbtn.addEventListener("click",function() {
+            let randi = Math.floor(Math.random() * pfp.length)
+            mainimg.src = pfp[randi];
+
             mainimg.style.width = "90px";
             setTimeout(function() {
                 mainimg.style.width = "110px";
             },100)
-            score+=amount[0];
+            score+=amount[0] * multi;
             maintext.textContent = score
+        })
+
+        setInterval(function() {
+            score += amount[1] * multi;
+            maintext.textContent = score
+        },1000)
+        setInterval(function() {
             if(score === 67) {
                 maintext.textContent = "BOIIIII IT'S 6777777777"
             }
@@ -188,12 +272,7 @@
             if(score === 367) {
                 maintext.textContent = "367 SO THANH HOA BOIIIIIIIII"
             }
-        })
-
-        setInterval(function() {
-            score += amount[1];
-            maintext.textContent = score
-        },1000)
+        },400)
 
         document.addEventListener("visibilitychange", function() {
             if(document.visibilityState === "hidden") {
